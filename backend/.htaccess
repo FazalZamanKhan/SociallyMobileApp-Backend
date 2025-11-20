@@ -1,0 +1,38 @@
+RewriteEngine On
+
+# Handle CORS preflight requests
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ $1 [R=200,L]
+
+# Redirect all requests to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Security headers
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"
+Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+
+# Hide PHP version
+Header unset X-Powered-By
+
+# File upload security
+<Files "*.php">
+    Order Deny,Allow
+    Deny from all
+    Allow from all
+</Files>
+
+# Deny access to sensitive files
+<FilesMatch "\.(sql|log|env|ini)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Set max file upload size
+php_value upload_max_filesize 50M
+php_value post_max_size 52M
+php_value max_execution_time 300
+php_value max_input_time 300
